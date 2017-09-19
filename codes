@@ -1,0 +1,663 @@
+class Solution(object):
+    def findMin(self,arrList):
+        "找列表中最小值"
+        start =0
+        end =len(arrList)-1
+        while start<end:
+            mid = int((start+end)/2)
+            if arrList[mid] > arrList[end]:
+                start =mid+1
+                return arrList[mid]
+            else:
+                end = mid
+        return arrList[start]
+    def firstMissingPositive(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        for i in range(0,len(nums)):
+            while nums[i]>0 and nums[i]<=len(nums) and nums[nums[i]-1] != nums[i]:
+                temp = nums[nums[i]-1]
+                nums[nums[i]-1] = nums[i]
+                nums[i] = temp
+        for j in range(len(nums)):
+            if nums[j] != j+1:
+                return j+1
+        return len(nums)+1
+    def maximumGap(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        if len(nums)<=2:
+            return 0
+        nums.sort()
+        maxgap = 0
+        for i in range(1,len(nums)):
+            thisgap =  nums[i]-nums[i-1]
+            if thisgap >=maxgap:
+                maxgap =thisgap
+                thisgap =0
+        return maxgap
+    def singleNumber(self, A):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        ans = 0
+        for i in range(0, 32):
+            count = 0
+            for a in A:
+                if ((a >> i) & 1):
+                    count += 1
+            ans |= ((count % 3) << i)
+        return self.convert(ans)
+    def convert(self, x):
+        if x >= 2 ** 31:
+            x -= 2 ** 32
+        return x
+    def largestRectangleArea(self, height):
+        """
+        :type heights: List[int]
+        :rtype: int
+        """
+        height.append(0)
+        stack = [-1]
+        ans = 0
+        for i in range(len(height)):
+            while height[i] < height[stack[-1]]:
+                h = height[stack.pop()]
+                w = i - stack[-1] - 1
+                ans = max(ans, h * w)
+            stack.append(i)
+        height.pop()
+        return ans
+    def bubbleSort(self ,array):
+        for i in range(len(array))[::-1]:
+            for j in range(i):
+                if array[j] > array[j + 1]:
+                    array[j], array[j + 1] = array[j + 1], array[j]
+        return array
+    def insertSort(self ,lists):
+        counts = len(lists)
+        for i in range(1, counts):
+            key = lists[i]
+            j = i - 1
+            while j >= 0:
+                if lists[j] > key:
+                    lists[j + 1] = lists[j]
+                    lists[j] = key
+                j -= 1
+        return lists
+    def shellSort(self ,lists):
+        # 希尔排序
+        count = len(lists)
+        step = 2
+        group = count / step
+        while group > 0:
+            for i in range(0, group):
+                j = i + group
+                while j < count:
+                    k = j - group
+                    key = lists[j]
+                    while k >= 0:
+                        if lists[k] > key:
+                            lists[k + group] = lists[k]
+                            lists[k] = key
+                        k -= group
+                    j += group
+            group /= step
+        return lists
+    def quikSort(self ,lists, left, right):
+        if left >= right:
+            return lists
+        key = lists[left]
+        low = left
+        high = right
+        while left < right:
+            while left < right and lists[right] >= key:
+                right -= 1
+            lists[left] = lists[right]
+            while left < right and lists[left] <= key:
+                left += 1
+            lists[right] = lists[left]
+        lists[right] = key
+        quikSort(lists, low, left - 1)
+        quikSort(lists, left + 1, high)
+        return lists
+    def selectSort(self ,lists):
+        counts = len(lists)
+        for i in range(0, counts):
+            min = i
+            for j in range(i + 1, counts):
+                if lists[min] > lists[j]:
+                    min = j
+                lists[min], lists[i] = lists[i], lists[min]
+        return lists
+    def Find(self, target, array):
+        # write code here
+        if len(array) == 1:
+            return False
+        row = len(array[0])
+        col = len(array)
+        m = col - 1
+        i= 0
+        start = array[col - 1][0]
+        while m >= 0 and i <= row - 1:
+            if array[m][i] > target:
+                m = m - 1
+            elif array[m][i] < target:
+                i += 1
+            else:
+               return True
+        return False
+    def replaceSpace(self, s):
+        ls = list(s)
+        for i in range(len(ls)):
+            if ls[i] == ' ':
+                print(i)
+                #s.replace(s[i],'a')
+                ls[i]=str('%20')
+        s ="".join(ls)
+        return s
+    def printListFromTailToHead(self, listNode):
+        # write code here
+        ls = []
+        if listNode is None:
+            return ls
+        while listNode.next is not None:
+            ls.append(listNode.val)
+            listNode = listNode.next
+        ls.append(listNode.val)
+        ls.reverse()
+        return ls
+    def reConstructBinaryTree(self, pre, tin):
+        # write code here
+        if len(pre) == 0:
+            return None
+        elif len(pre) == 1:
+            return TreeNode(pre[0])
+        else:
+            ans = TreeNode(pre[0])
+            ans.left = self.reConstructBinaryTree(pre[1:tin.index(pre[0]) + 1], tin[:tin.index(pre[0])])
+            ans.right = self.reConstructBinaryTree(pre[tin.index(pre[0]) + 1:], tin[tin.index(pre[0]) + 1:])
+            return ans
+    def minNumberInRotateArray(self, rotateArray):
+        # write code here
+        min_num = min(rotateArray)
+        min_index = rotateArray.index(min_num)
+        left = rotateArray[:min_index]
+        right = rotateArray[min_index:]
+        right.extend(left)
+        return right
+    def Fibonacci(self, n):
+        if n == 0 :
+            return 0
+        elif n == 1 or n == 2:
+            return 1
+        else:
+            ls = [1,1]
+            for i in range(2, n):
+                ls.append(ls[i - 1] + ls[i - 2])
+            return ls[n - 1]
+    def Fibonacci2(self,n):
+        if n <= 2:
+            return 1
+        else:
+            return self.Fibonacci2(n-1)+self.Fibonacci2(n-2)
+    def jumpFloor(self, number):
+        if number == 0:
+            return 0
+        elif number == 1:
+            return 1
+        elif number ==2:
+            return 2
+        else:
+            ls = [1,2]
+            for i in range(2,number):
+                ls.append(ls[i-1]+ls[i-2])
+            return ls[number-1]
+    def jumpFloorII(self, number):
+        if number == 0:
+            return 0
+        elif number==1:
+            return 1
+        elif number ==2:
+            return 2
+        else:
+            ls =[1,2]
+            for i in range(2,number):
+                ls.append(2*ls[i-1])
+            return ls[number-1]
+    def NumberOf1(self, n):
+        i =64
+        if n ==0:
+            return 0
+        elif n>0:
+            ls =[]
+            while i<=64 and i>=0:
+                if (n>>i)&1 :
+                    ls.append(1)
+                i -=1
+            print(ls)
+            return sum(ls)
+        else:
+            ls = []
+            m =-n
+            num = 0
+            while i<=64 and i>=0:
+                if (m>>i)&1 == 0:
+                    ls.append(1)
+                else:
+                    ls.append(0)
+                i -=1
+            print(ls)
+            ls[::-1]
+            for i in range(len(ls)):
+                num += ls[i]*(2**i)
+            num = num+1
+            print(num)
+            return self.NumberOf1(num)
+    def Numnerof1_2(self,n):
+        count = 0
+        if n < 0:
+            n = n & 0xffffffff
+        while n:
+            count += 1
+            n = (n - 1) & n
+        return count
+    def reOrderArray(self, array):
+        # write code here
+        odd = []
+        even = []
+        for i in range(len(array)):
+            if array[i] % 2 == 0:
+                even.append(array[i])
+            else:
+                odd.append(array[i])
+        odd.extend(even)
+        return odd
+    def FindKthToTail(self, head, k):
+        # write code here
+        front = head
+        later = head
+        for i in range(k):
+            if front == None:
+                return
+            if front.next == None and i == k - 1:
+                return head
+            front = front.next
+        while front.next != None:
+            front = front.next
+            later = later.next
+        return later.next
+    def ReverseList(self, pHead):
+        # write code here
+        if pHead is None:
+            return
+        lst = []
+        while pHead != None:
+            lst.append(pHead.val)
+            pHead = pHead.next
+        lst = lst[::-1]
+        result_pre = ListNode(lst[0])
+        result = result_pre
+        for i in range(1, len(lst)):
+            result.next = ListNode(lst[i])
+            result = result.next
+        return result_pre
+    def Merge(self, pHead1, pHead2):
+        # write code here
+        dummy = cur = ListNode(0)
+        while pHead1 and pHead2:
+            if pHead1.val < pHead2.val:
+                cur.next = pHead1
+                pHead1 = pHead1.next
+            else:
+                cur.next = pHead2
+                pHead2 = pHead2.next
+            cur = cur.next
+        cur.next = pHead1 or pHead2
+        return dummy.next
+    def HasSubtree(self, pRoot1, pRoot2):
+        # write code here
+        Result = False
+        if pRoot1 != None and pRoot2 != None:
+            if pRoot1.val == pRoot2.val:
+                Result = self.IsSubtree(pRoot1, pRoot2)
+            if not Result:
+                result = self.HasSubtree(pRoot1.left, pRoot2)
+            if not Result:
+                result = self.HasSubtree(pRoot1.right, pRoot2)
+        return result
+    def IsSubtree(self, pRoot1, pRoot2):
+        if pRoot2 == None:
+            return True
+        if pRoot1 == None:
+            return False
+        if pRoot1.val != pRoot2.val:
+            return False
+        return self.IsSubtree(pRoot1.left, pRoot2.left) and self.IsSubtree(pRoot1.right, pRoot2.right)
+    def Mirror(self, root):
+        # write code here
+        if not root:
+            return None
+        root.left, root.right = self.Mirror(root.right), self.Mirror(root.left)
+        return root
+    def printMatrix(self, matrix):
+        lst =[]
+        while len(matrix)!= 0:
+            lst.append(matrix[0])
+            matrix = zip(*matrix[1:])[::-1]
+        return lst
+    def rob(self, nums):
+        last , now = 0,0
+        for i in nums:
+            last,now = now, max(last+i,now)
+        return now
+    def rob2(self,nums):
+        length = len(nums)-1
+        if length <0 :
+            return 0
+        Sum_num =max(nums[length]+self.rob2(nums[:length-1]),self.rob2(nums[:length]))
+        return Sum_num
+    def countPace(self,M,N):
+        if N ==0 or M ==0 :
+            return 0
+        elif M ==1 or N ==1:
+            return 1
+        else:
+            return self.countPace(M-1,N)+self.countPace(M,N-1)
+    def backPack(self,w,v,W):
+        n = len(w)
+        statue = [0 for k in range(n)]
+        if n ==0 : return 0
+        for i in range(n)[::-1]:
+            if w[i] >W:
+                statue[i]=0
+                return self.backPack(w[:n-1],v[:n-1],W)
+            else:
+                temp1 = self.backPack(w[:n-1],v[:n-1],W)
+                temp2 = self.backPack(w[:n-1],v[:n-1],W-w[i])+v[i]
+                if temp1 >temp2:
+                    statue[i] =0
+                    return temp1
+                else:
+                    statue[i] =1
+                    return temp2
+        Sum = 0
+        for k in range(n):
+            if statue[k] ==1:
+                Sum +=v[k]
+        return Sum
+    def subsets(self,nums):
+        #array3 = [3, 4, 5, 1, 2]
+        if len(nums) == 0:
+            return [[]]
+        #nums.sort()
+        without_1st = self.subsets(nums[1:])
+        with_1st = [([nums[0]] + x) for x in without_1st]
+        return without_1st + with_1st
+
+
+
+        lst.extend(self.outputSeries(array[:n-1]))
+        #lst.append([])
+        return lst
+    def clockwisePrint(self,nums):
+        lst =[]
+        while len(nums) !=0:
+            temp =[]
+            lst.extend(nums.pop(0))
+            for i in map(list,zip(*nums)):
+                temp.append(i)
+            temp.reverse()
+            nums =temp
+        return lst
+    def clockwiseBuild(self,n):
+        lst =[]
+        for i in range(1,n**2+1):
+            lst.append(i)
+
+        print(lst)
+
+        def switchNumsStar(strs):
+            left = ''
+            right = ''
+            for i in strs:
+                if i.isdigit():
+                    left += i
+                else:
+                    right += i
+            return left + right
+    def switchNumsStar(self,strs):
+        left =''
+        right =''
+        for i in strs:
+            if i.isdigit():
+                left +=i
+            else:
+                right+=i
+        return left+right
+    def FloydRouth(self,array):
+        length = len(array)
+        for i in range(length):
+            for j in range(length):
+                for k in range(length):
+                    if array[i][j] > array[i][k] + array[j][k]:
+                        array[i][j] = array[i][k] + array[j][k]
+        return array
+    def Picknum(self,k,input):
+        num = [int(n) for n in input.split()]
+        num.sort()
+        return print(num[len(num)-k])
+    def minimumTotal(self, triangle):
+        if not triangle: return 0
+        m = len(triangle)
+        cache = [[0 for i in range(m)] for j in range(m)]
+        for i in range(m):
+            cache[m - 1][i] = triangle[m - 1][i]
+        for i in range(1, m):
+            for j in range(m - i):
+                cache[m - 1 - i][j] = min(cache[m - i][j], cache[m - i][j + 1]) + triangle[m - 1 - i][j]
+        return cache[0][0]
+    def maxSubArray(self,array):
+        if len(array) ==0:
+            return 0
+        elif len(array) ==1:
+            return array[0]
+        maxSum ,cur= 0,0
+        length = len(array)
+        for i in range(length):
+            if cur>= 0:
+                cur +=array[i]
+            else:
+                cur =array[i]
+                strat =i
+            if cur>maxSum:
+                maxSum =cur
+                end =i
+        return maxSum,strat,end
+    def coinChange(self, coins, amount):
+        rs = [amount + 1] * (amount + 1)  #[amont+1,amount+1,amount+1,...]
+        rs[0] = 0
+        for i in range(1,amount+1):
+            for j in coins:
+                if i>=j:
+                    rs[i] = min(rs[i],rs[i-j]+1)
+        if rs[amount] == amount+1:return -1
+        return rs[amount]
+    def calculateMinimumHP(self, dungeon):
+        n = len(dungeon[0])
+        need = [2 ** 31] * (n - 1) + [1]
+        print(need)
+        for row in dungeon[::-1]:
+            for j in range(n)[::-1]:
+                need[j] = max(min(need[j:j + 2]) - row[j], 1)
+        return need[0]
+    def longestPalindrome(self, s):
+        n = len(s)
+        maxLen =1
+        res =[]
+        if n == 1:
+            return s
+        for i in range(n):
+            for j in range(i + 1, n):
+                if s[j] == s[i]:
+                    count = j - i
+                    if count >= maxLen:
+                        maxLen =count
+                        res.append(s[i:j+1])
+        return res[-1]
+    def uniquePaths(self, m, n):
+        arr = [[1 for i in range(m)] for j in range(n)]
+        print(arr)
+        for i in range(1,n):
+            for j in range(1,m):
+                arr[i][j] = arr[i - 1][j] + arr[i][j - 1]
+        return arr[n - 1][m - 1]
+    def findDate(self,str1,str2,str3,str4):
+        n = min(len(str1),len(str2))
+        Week = ['MON','TUE','WED','THU','FRI','SAT','SUN']
+        date =[]
+        for i in range(n):
+            if str1[i] == str2[i] and str1[i].isupper():
+                date.append(str1[i])
+        dateHead = ord(date[0])-ord('A')
+        dateMid = date[1]
+        m = min(len(str3),len(str4))
+        for j in range(m):
+            if str3[j] == str4[j] and str3[j].isalpha():
+                if j <10:
+                    dateTail ='0'+str(j)
+                    break
+                else:
+                    dateTail =str(j)
+                    break
+        if dateMid.isdigit():
+            Time = int(dateMid)
+        else:
+            Time = ord(dateMid)-ord('A')+10
+        print(Week[dateHead]+' '+str(Time)+':'+dateTail)
+    def numofBineray(self):
+        str = input()
+        Flag = True
+        count = 0
+        for i in range(int(str)):
+            string = str(i)
+            for j in range(i):
+                if j != 1 or j != 0:
+                    Flag = False
+            if Flag:
+                count +=1
+        return count
+    def lengthOfLongestSubstring(self, s):
+        start = maxLength = 0
+        usedChar = {}
+        for i in range(len(s)):
+            if s[i] in usedChar and start<=usedChar[s[i]]:
+                start = usedChar[s[i]]+1
+            else:
+                maxLength = max(maxLength,i-start+1)
+            usedChar[s[i]]  = i
+        return maxLength
+    def twoSum(self, nums, target):
+        buffer = {}
+        for i, item in enumerate(nums):
+            if item in buffer:
+                return [buffer[nums[i]],i]
+            else:
+                buffer[target-nums[i]]=i
+    def goodstrs(self,str):
+        S = [i for i in str]
+        dic = {}
+        k = 1
+        for i in range(0, len(S) - 1):
+            if S[i + 1] == S[i]:
+                k = k + 1
+            else:
+                if S[i] in dic.keys() and k > dic[S[i]]:
+                    dic[S[i]] = k
+                elif S[i] not in dic.keys():
+                    dic[S[i]] = k
+                k = 1
+        return sum(dic.values())
+    def coinChange(self,coins, amount):
+        dp = [0] + [amount + 1] * amount
+        for i in range(1, amount + 1):
+            for c in coins:
+                if i - c >= 0:
+                    dp[i] = min(dp[i], dp[i - c] + 1)
+        if dp[amount] == amount + 1:
+            return -1
+        return dp[amount]
+    def numCoins(self,Coins, amount):
+        MAX = amount + 1
+        dp = [MAX for i in range(amount + 1)]
+        dp[0] = 0
+        dp[1] = 1
+        for i in range(2, amount + 1):
+            for item in Coins:
+                if i >= item:
+                    dp[i] = min(dp[i - item] + 1, dp[i])
+        return dp[amount]
+    def magicCoins(self,n):
+        lst = []
+        while n >= 1:
+            if (n - 2) % 2 == 0:
+                n = (n - 2) / 2
+                lst.append('2')
+            else:
+                n = (n - 1) / 2
+                lst.append('1')
+
+        return ''.join(lst)
+    def idNums(self,nums):
+        n = len(nums)
+        if n <= 6:
+            print(nums)
+        elif n <= 14:
+            print(nums[:6] + ' ' + nums[6:])
+        else:
+            print(nums[:6] + ' ' + nums[6:14] + ' ' + nums[14:])
+    def UniquePath(self,m, n):
+        dp = [[0 for i in range(n)] for j in range(m)]
+        dp[0][0] = 1
+        for i in range(m):
+            for j in range(n):
+                if i != 0 or j != 0:
+                    if i == 0:
+                        dp[i][j] = dp[i][j - 1]
+                    elif j == 0:
+                        dp[i][j] = dp[i - 1][j]
+                    else:
+                        dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+        return dp[m - 1][n - 1]
+    def minPath(self,array):
+        n = len(array[0])
+        m = len(array)
+        MAX = 10000
+        dp = [[MAX for i in range(n)] for j in range(m)]
+        dp[0][0] = array[0][0]
+        for i in range(1, m):
+            dp[i][0] = dp[i - 1][0] + array[i][0]
+        for j in range(1, n):
+            dp[0][j] = dp[0][j - 1] + array[0][j]
+        for i in range(1, m):
+            for j in range(1, n):
+                temp = min(dp[i][j - 1], dp[i - 1][j]) + array[i][j]
+                dp[i][j] = min(dp[i][j], temp)
+        return dp[m - 1][n - 1]
+    def binarySearch(self,num,lst):
+        low = 0
+        high = len(lst)-1
+        while low<=high:
+            mid = (low+high)//2
+            if lst[mid] == num:
+                return mid
+            elif lst[mid]>num:
+                high = mid-1
+            else:
+                low =mid+1
+        return -1

@@ -72,45 +72,78 @@ def add_concept(temp_concept,new_cpt):
     temp_concept.append(new_cpt)
     return temp_concept
 
-def change_date():
-    root_dir = 'D:\LearningProgram\stockInfo\data'
+def change_date(src_dir,save_dir,this_date):
     count = 0
-    for file_name in os.listdir(root_dir):
+    for file_name in os.listdir(src_dir):
         stock = file_name[:-4]
-        df = pd.read_csv(os.path.join(root_dir, file_name), index_col='date')
-        td = ts.get_hist_data(stock, start='2019-04-15')
-        df = pd.concat([td, df], sort=True).drop_duplicates(keep='first')
-        df.to_csv(os.path.join(root_dir, file_name), index=False)
+        df = pd.read_csv(os.path.join(src_dir, file_name), index_col='date')
+        if this_date in df.index:
+            df.to_csv(os.path.join(save_dir, file_name))
+            continue
+        try:
+            this_df = today_df[today_df.code==int(stock)]
+            this_df = this_df[~this_df.index.duplicated(keep='first')]
+            this_df['close'] = round(df.close[0]*this_df.changepercent/100+df.close[0],2).values[0]
+            this_df['p_change'] =  this_df['changepercent']
+            cc = pd.DataFrame(columns=df.columns)
+        except:
+            print('+++++++++++++',stock)
+            continue
+        
+        for col in cc.columns:
+            try:
+                cc.loc[this_date,col] = this_df.loc[:,col].values[0]
+            except:
+                cc.loc[this_date,col] = np.nan
+        try:
+            df = pd.concat([cc, df], sort=True).drop_duplicates(keep='first')
+            df = df[~df.index.duplicated(keep='first')]
+            df.to_csv(os.path.join(save_dir, file_name),index_name = 'date')
+        except:
+            pass
         count += 1
         if count % 20 == 0:
             print(stock)
 
 
+def change_name(src_dir):
+    for file_name in os.listdir(src_dir):
+        df = pd.read_csv(os.path.join(src_dir, file_name))
+        try:
+            df = df.rename(columns={'Unnamed: 0':'date'})
+        except:
+            continue
+        df.to_csv(os.path.join(save_dir, file_name),index=False)
+
+
 if __name__ == '__main__':
 
-    root_dir = 'D:\LearningProgram\stockInfo\data2'
-    root_dir2 = 'D:\LearningProgram\stockInfo\data3'
-    this_date = '2019-04-17'
-    last_date = '2019-04-15'
-    count = 0
-    for file_name in os.listdir(root_dir):
-        stock = file_name[:-4]
-        df = pd.read_csv(os.path.join(root_dir, file_name), index_col='date')
-        df = df[~df.index.duplicated(keep='first')]
-        df.to_csv(os.path.join(root_dir2, file_name))
+    save_dir = 'D:\LearningProgram\stockInfo\data_0422'
+    root_dir = 'D:\LearningProgram\stockInfo\data_0419'
 
-        # if file_name in os.listdir(root_dir2):continue
+
+    # today_df = pd.read_csv('0419.csv')
+    # change_name(save_dir)
+
+    count = 0
+    for file_name in os.listdir(save_dir):
+        stock = file_name[:-4]
+        df = pd.read_csv(os.path.join(save_dir, file_name), index_col='date')
+        df = df[~df.index.duplicated(keep='first')]
+        df.to_csv(os.path.join(save_dir, file_name))
+        #
+        # if file_name in os.listdir(save_dir):continue
         # try:
         #     df = pd.read_csv(os.path.join(root_dir,file_name),index_col='date')
         #     #if this_date in df.index:continue
-        #     td = ts.get_hist_data(stock, start='2019-04-15')
+        #     td = ts.get_hist_data(stock, start='2019-04-18')
         #     df = pd.concat([td, df], sort=True).drop_duplicates(keep='first')
-        #     df.to_csv(os.path.join(root_dir2, file_name))
+        #     df.to_csv(os.path.join(save_dir, file_name))
         # except:
         #     pass
         # count +=1
         # if count%20 == 0:
         #     print(stock)
-    
+        #
 
 

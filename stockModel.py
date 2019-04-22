@@ -37,14 +37,16 @@ def is_star_(df,thrd=0.5):
 def is_shaddow_(df,thrd=0.2):
     AD = df.high.values[0]-df.low.values[0]
     AB = df.high.values[0] - max(df.close.values[0],df.open.values[0])
-    if AB/AD >= thrd:
+    CD = min(df.close.values[0],df.open.values[0]) - df.low.values[0]
+    if AB/AD >= thrd and CD/AD>=thrd:
         return True
 def is_drop_(df,thrd=0.02):
-    droprate = df.price_change[0]
+    droprate = df.price_change[0]/df.close[1]
     if abs(droprate) <= thrd:
         return True
 def is_min_vol_(df):
-    bool_min_vol = df.volume.values[0] <= min(df.volume.values[2:BACK_SEARCH_DAYS+2])
+    bool_min_vol = df.volume.values[0] <= min(df.volume.values[2:BACK_DROP_DAYS + 2])
+    #bool_min_vol = df.volume.values[0] <= min(df.volume.values[2:4])
     return bool_min_vol
 def is_huge_drop_(df,thrd=0.06):
     max_date,check_date = get_first_up_date(df,BACK_SEARCH_DAYS=4,BACK_CHECK_DAYS=5)
@@ -58,51 +60,59 @@ def is_huge_raise_(df,thrd=0.10):
     return bool_raise
 
 
-def check_this_stock_one_day(df,this_date,ignore_star,ignore_shaddow,param):
+def check_this_stock_one_day(df,ignore_star,ignore_shaddow,ignore_drop,Param):
     #计算是否收十字星
     if not ignore_star:
-        if not is_star_(df,thrd=param['star']):
+        if not is_star_(df,thrd=Param['star']):
             return False
     #计算是否满足上影线规则
     if not ignore_shaddow:
-        if not is_shaddow_(df,thrd=param['shaddow']):
+        if not is_shaddow_(df,thrd=Param['shaddow']):
             return False
     #计算当日涨跌幅是否超过0.02 star_flag=False  第一个星 涨跌3
-    if not is_drop_(df,thrd=param['drop_2']):
-        return False
+# =============================================================================
+#     if ignore_drop:
+#         if not is_drop_(df,thrd=0.02):
+#             return False
+#     else:
+#         if not is_drop_(df,thrd=0.015):
+#             return False
+# =============================================================================
     #计算当日是否为今日最低成交量日
     if not is_min_vol_(df):
-        return False
+       return False
     #计算是否近日超跌
-    if not is_huge_drop_(df,thrd=param['huge_drop']):
-        return False
+    if not is_huge_drop_(df,thrd=Param['huge_drop']):
+       return False
     #计算高位前是否有超级大涨
-    if not is_huge_raise_(df,thrd=param['huge_raise']):
-        return False
+# =============================================================================
+#     if not is_huge_raise_(df,thrd=Param['huge_raise']):
+#        return False
+# =============================================================================
     return True
 
 
 
 if __name__ == '__main__':
-    FILE_DIR = 'D:\LearningProgram\stockInfo\data3'
-    BACK_SEARCH_DAYS = 5
-    BACK_CHECK_DAYS = 8
+    FILE_DIR = 'D:\LearningProgram\stockInfo\data_0422'
+    BACK_DROP_DAYS = 4
+    BACK_RAISE_DAYS = 10
     stockInfo = pd.read_csv('stockInfo.csv')
 
     good_stock = []
-    Param = {'star': 0.15, 'shaddow': 0.2, 'drop_1': 0.02, 'drop_2': 0.03, 'huge_drop': 0.08, 'huge_raise': 0.1}
-    this_date = '2019-04-18'
-    last_date = '2019-04-17'
+    Param = {'star': 0.1, 'shaddow': 0.2, 'huge_drop': 0.1, 'huge_raise': 0.1}
+    this_date = '2019-04-22'
+    last_date = '2019-04-19'
     for file_name in os.listdir(FILE_DIR):
         stock = file_name[:-4]
         df = pd.read_csv(os.path.join(FILE_DIR,file_name),index_col='date')
+        if this_date not in df.index:
+            continue
         df = df.loc[this_date:]
-        if df.shape[0] <=0: continue
-        if check_this_stock_one_day(df,this_date,ignore_star=False,ignore_shaddow=False,param=Param):
-# =============================================================================
-#             if check_this_stock_one_day(df,last_date,ignore_star=False,ignore_shaddow=True,param=Param):
-#                 name = stockInfo[stockInfo.code==int(stock)].name.values[0]
-# =============================================================================
+        if check_this_stock_one_day(df,ignore_star=False,ignore_shaddow=False,ignore_drop= True,Param=Param):
+            #df = df.loc[last_date:]
+            #if check_this_stock_one_day(df,ignore_star=False,ignore_shaddow=True,ignore_drop= True,Param=Param):
+            name = stockInfo[stockInfo.code==int(stock)].name.values[0]
             print(this_date,'Find a good stock---',stock,name)
     print('Running Done!!!')
     
